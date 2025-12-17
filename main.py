@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
     def switch_page(self, index, vehicle_index=None):
         self.stack.setCurrentIndex(index)
         if index == 1: 
-            self.page_dashboard.tabloyu_guncelle()
+            self.page_dashboard.kartlari_guncelle() 
         if index == 2 and vehicle_index is not None: 
             self.page_rental.prepare(vehicle_index)
         if index == 3: 
