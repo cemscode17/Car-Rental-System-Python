@@ -1,0 +1,109 @@
+{
+    "araclar": [
+        {
+            "plaka": "34BGA463",
+            "marka": "Nissan",
+            "model": "Qashqai",
+            "ucret": 2000.0,
+            "durum": "Kirada",
+            "kiralayan": "ceren şengül",
+            "baslangic": "2025-12-15",
+            "bitis": "2025-12-16"
+        },
+        {
+            "plaka": "34ABC123",
+            "marka": "Renault",
+            "model": "Clio",
+            "ucret": 1500.0,
+            "durum": "Müsait",
+            "kiralayan": "",
+            "baslangic": "",
+            "bitis": ""
+        },
+        {
+            "plaka": "41XYZ251",
+            "marka": "Volvo",
+            "model": "XC40",
+            "ucret": 2500.0,
+            "durum": "Kirada",
+            "kiralayan": "ceren",
+            "baslangic": "2025-12-15",
+            "bitis": "2025-12-16"
+        },
+        {
+            "plaka": "11AGB48",
+            "marka": "Audi",
+            "model": "Q3",
+            "ucret": 3000.0,
+            "durum": "Müsait",
+            "kiralayan": "",
+            "baslangic": "",
+            "bitis": ""
+        },
+        {
+            "plaka": "52AZY110",
+            "marka": "Toyota",
+            "model": "Corolla",
+            "ucret": 2000.0,
+            "durum": "Müsait",
+            "kiralayan": "",
+            "baslangic": "",
+            "bitis": ""
+        },
+        {
+            "plaka": "70AB153",
+            "marka": "Ford",
+            "model": "Focus",
+            "ucret": 1600.0,
+            "durum": "Kirada",
+            "kiralayan": "zafer yetiş",
+            "baslangic": "2025-12-15",
+            "bitis": "2025-12-18"
+        }
+    ],
+    "toplam_gelir": 15800.0,
+    "gecmis_islemler": [
+        {
+            "plaka": "34BGA463",
+            "tutar": 2000.0,
+            "tarih": "2025-12-15",
+            "gun": "1",
+            "musteri": "soner yarıkabak"
+        },
+        {
+            "plaka": "11AGB48",
+            "tutar": 3000.0,
+            "tarih": "2025-12-15",
+            "gun": "1",
+            "musteri": "Ajdar Gülüzülmez"
+        },
+        {
+            "plaka": "34ABC123",
+            "tutar": 1500.0,
+            "tarih": "2025-12-15",
+            "gun": "1",
+            "musteri": "Cahit Sancar"
+        },
+        {
+            "plaka": "70AB153",
+            "tutar": 4800.0,
+            "gun": 3,
+            "tarih": "2025-12-15",
+            "musteri": "zafer yetiş"
+        },
+        {
+            "plaka": "41XYZ251",
+            "tutar": 2500.0,
+            "gun": 1,
+            "tarih": "2025-12-15",
+            "musteri": "ceren"
+        },
+        {
+            "plaka": "34BGA463",
+            "tutar": 2000.0,
+            "gun": 1,
+            "tarih": "2025-12-15",
+            "musteri": "ceren şengül"
+        }
+    ]
+}
