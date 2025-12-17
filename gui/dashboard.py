@@ -1,9 +1,13 @@
+# gui/dashboard.py
+import os
+import shutil
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
-                             QLabel, QLineEdit, QPushButton, QTableWidget, 
-                             QTableWidgetItem, QHeaderView, QMessageBox, 
-                             QComboBox, QGroupBox, QDialog)
-from PyQt5.QtGui import QFont, QColor
+                             QLabel, QLineEdit, QPushButton, QComboBox, QGroupBox, QDialog,
+                             QScrollArea, QGridLayout, QFrame, QFileDialog, QMessageBox)
+from PyQt5.QtGui import QFont, QPixmap, QColor
+from PyQt5.QtCore import Qt
 
+# --- DÜZENLEME PENCERESİ CLASS ---
 class EditDialog(QDialog):
     def __init__(self, parent, arac_bilgisi):
         super().__init__(parent)
@@ -30,13 +34,14 @@ class EditDialog(QDialog):
         return (self.ent_plaka.text(), self.ent_marka.text(), 
                 self.ent_model.text(), self.ent_ucret.text())
 
+# --- DASHBOARD PAGE CLASS (Resimli & Grid Yapılı) ---
 class DashboardPage(QWidget):
     def __init__(self, switch_callback, veri_yoneticisi, toggle_theme_callback):
         super().__init__()
         self.switch_callback = switch_callback
         self.db = veri_yoneticisi
         self.toggle_theme_callback = toggle_theme_callback
-        self.current_rows_indices = []
+        self.secilen_resim_yolu = None # Yeni araç eklerken tutulacak geçici yol
         self.init_ui()
 
     def init_ui(self):
@@ -44,8 +49,9 @@ class DashboardPage(QWidget):
         main.setContentsMargins(20, 20, 20, 20)
         self.setLayout(main)
 
+        # --- ÜST BAR ---
         top_bar = QHBoxLayout()
-        self.lbl_welcome = QLabel("Yönetim Paneli")
+        self.lbl_welcome = QLabel("Yönetim Paneli - Galeri")
         self.lbl_welcome.setFont(QFont("Segoe UI", 14, QFont.Bold))
         
         self.btn_report = QPushButton("📊 Detaylı Analiz")
@@ -65,14 +71,15 @@ class DashboardPage(QWidget):
         top_bar.addWidget(btn_logout)
         main.addLayout(top_bar)
 
+        # --- FİLTRELEME ALANI ---
         filter_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("🔍 Plaka, Marka veya Model Ara...")
-        self.search_input.textChanged.connect(self.tabloyu_guncelle)
+        self.search_input.textChanged.connect(self.kartlari_guncelle)
         
         self.filter_combo = QComboBox()
         self.filter_combo.addItems(["Tümü", "Müsait", "Kirada"])
-        self.filter_combo.currentTextChanged.connect(self.tabloyu_guncelle)
+        self.filter_combo.currentTextChanged.connect(self.kartlari_guncelle)
         
         filter_layout.addWidget(self.search_input, 70)
         filter_layout.addWidget(self.filter_combo, 30)
@@ -80,13 +87,25 @@ class DashboardPage(QWidget):
 
         content = QHBoxLayout()
         
-        self.left_panel = QGroupBox("Araç Ekleme Paneli")
+        # --- SOL PANEL: ARAÇ EKLEME (Resim Seçmeli) ---
+        self.left_panel = QGroupBox("Yeni Araç Ekle")
+        self.left_panel.setFixedWidth(300) 
         left_layout = QVBoxLayout()
-        left_layout.setSpacing(15)
         self.left_panel.setLayout(left_layout)
         
+        # Resim Önizleme Alanı
+        self.img_preview = QLabel("Resim Yok")
+        self.img_preview.setAlignment(Qt.AlignCenter)
+        self.img_preview.setFixedSize(260, 150)
+        self.img_preview.setStyleSheet("border: 2px dashed #bdc3c7; border-radius: 10px; color: gray;")
+        left_layout.addWidget(self.img_preview, alignment=Qt.AlignCenter)
+
+        btn_select_img = QPushButton("📸 Fotoğraf Seç")
+        btn_select_img.clicked.connect(self.resim_sec)
+        left_layout.addWidget(btn_select_img)
+
         form = QFormLayout()
-        form.setVerticalSpacing(15)
+        form.setVerticalSpacing(10)
         self.ent_plaka = QLineEdit()
         self.ent_marka = QLineEdit()
         self.ent_model = QLineEdit()
@@ -100,127 +119,205 @@ class DashboardPage(QWidget):
         left_layout.addLayout(form)
         
         btn_add = QPushButton("Listeye Ekle")
-        btn_add.setStyleSheet("background-color: #27ae60; color: white;")
+        btn_add.setStyleSheet("background-color: #27ae60; color: white; padding: 10px;")
         btn_add.clicked.connect(self.arac_ekle)
         left_layout.addWidget(btn_add)
         left_layout.addStretch()
-        content.addWidget(self.left_panel, 30)
+        content.addWidget(self.left_panel)
 
-        right_panel = QGroupBox("Araç Filosu")
+        # --- SAĞ PANEL: ARAÇ FİLOSU (SCROLL AREA & GRID) ---
+        right_group = QGroupBox("Araç Filosu")
         right_layout = QVBoxLayout()
-        right_panel.setLayout(right_layout)
-        
-        self.table = QTableWidget()
-        self.table.setColumnCount(6)
-        self.table.setHorizontalHeaderLabels(["Plaka", "Marka", "Model", "Ücret", "Durum", "Kiralayan"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.setAlternatingRowColors(True)
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)
-        right_layout.addWidget(self.table)
-        
-        btn_box = QHBoxLayout()
-        self.btn_kirala = QPushButton("Kirala")
-        self.btn_kirala.clicked.connect(self.kiralamaya_git)
-        
-        self.btn_iade = QPushButton("İade Al")
-        self.btn_iade.clicked.connect(self.iade_et)
+        right_group.setLayout(right_layout)
 
-        self.btn_edit = QPushButton("Düzenle")
-        self.btn_edit.clicked.connect(self.duzenle)
-
-        self.btn_sil = QPushButton("Sil")
-        self.btn_sil.setStyleSheet("background-color: #c0392b; color: white;")
-        self.btn_sil.clicked.connect(self.sil)
-
-        btn_box.addWidget(self.btn_kirala)
-        btn_box.addWidget(self.btn_iade)
-        btn_box.addWidget(self.btn_edit)
-        btn_box.addWidget(self.btn_sil)
-        right_layout.addLayout(btn_box)
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setStyleSheet("QScrollArea { border: none; background-color: transparent; }")
         
-        content.addWidget(right_panel, 70)
+        self.scroll_content = QWidget()
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setSpacing(20) 
+        self.scroll_content.setLayout(self.grid_layout)
+        
+        self.scroll.setWidget(self.scroll_content)
+        right_layout.addWidget(self.scroll)
+        
+        content.addWidget(right_group)
         main.addLayout(content)
 
-    def tabloyu_guncelle(self):
-        self.table.setRowCount(0)
+        self.kartlari_guncelle()
+
+    def resim_sec(self):
+        dosya_yolu, _ = QFileDialog.getOpenFileName(self, "Araç Resmi Seç", "", "Resim Dosyaları (*.png *.jpg *.jpeg)")
+        if dosya_yolu:
+            self.secilen_resim_yolu = dosya_yolu
+            pixmap = QPixmap(dosya_yolu)
+            self.img_preview.setPixmap(pixmap.scaled(260, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self.img_preview.setText("") 
+
+    def kartlari_guncelle(self):
+        # Grid temizleme
+        for i in reversed(range(self.grid_layout.count())): 
+            widget = self.grid_layout.itemAt(i).widget()
+            if widget is not None: 
+                widget.setParent(None)
+
         durum_filtre = self.filter_combo.currentText()
         arama_metni = self.search_input.text().lower()
-        self.current_rows_indices = [] 
         
+        row = 0
+        col = 0
+        max_col = 3 # Yan yana 3 araç
+
         for i, arac in enumerate(self.db.veriler["araclar"]):
+            # Filtreleme
             if durum_filtre == "Müsait" and arac["durum"] != "Müsait": continue
             if durum_filtre == "Kirada" and arac["durum"] != "Kirada": continue
-            
             if arama_metni and (arama_metni not in arac["plaka"].lower() and 
                                 arama_metni not in arac["marka"].lower() and 
                                 arama_metni not in arac["model"].lower()):
                 continue
+            
+            # --- KART TASARIMI ---
+            card = QFrame()
+            card.setObjectName("CarCard")
+            card.setStyleSheet("""
+                QFrame#CarCard { 
+                    background-color: white; 
+                    border: 1px solid #dcdde1; 
+                    border-radius: 15px; 
+                }
+                QFrame#CarCard:hover {
+                    border: 2px solid #3498db;
+                }
+            """)
+            card.setFixedSize(260, 360) 
+            
+            card_layout = QVBoxLayout()
+            card_layout.setContentsMargins(10, 10, 10, 10)
+            card.setLayout(card_layout)
 
-            row = self.table.rowCount()
-            self.table.insertRow(row)
-            self.table.setItem(row, 0, QTableWidgetItem(arac["plaka"]))
-            self.table.setItem(row, 1, QTableWidgetItem(arac["marka"]))
-            self.table.setItem(row, 2, QTableWidgetItem(arac["model"]))
-            self.table.setItem(row, 3, QTableWidgetItem(f"{arac['ucret']} TL"))
+            # 1. Resim
+            lbl_img = QLabel()
+            lbl_img.setFixedSize(240, 160)
+            lbl_img.setAlignment(Qt.AlignCenter)
+            lbl_img.setStyleSheet("background-color: #ecf0f1; border-radius: 10px;")
             
-            durum_item = QTableWidgetItem(arac["durum"])
-            if arac["durum"] == "Müsait":
-                durum_item.setForeground(QColor("#27ae60"))
+            resim_path = arac.get("resim")
+            # Otomatik resim eşleştirme (Eski veriler için)
+            if not resim_path and i < 6:
+                resim_path = f"assets/arac{i+1}.png"
+            elif not resim_path:
+                resim_path = "assets/default_car.png"
+            
+            pixmap = QPixmap(resim_path)
+            if pixmap.isNull():
+                lbl_img.setText("Resim Yok")
             else:
-                durum_item.setForeground(QColor("#c0392b"))
-            durum_item.setFont(QFont("Segoe UI", 9, QFont.Bold))
+                lbl_img.setPixmap(pixmap.scaled(240, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             
-            self.table.setItem(row, 4, durum_item)
-            self.table.setItem(row, 5, QTableWidgetItem(arac["kiralayan"]))
-            self.current_rows_indices.append(i)
+            card_layout.addWidget(lbl_img)
+
+            # 2. Bilgiler
+            lbl_info = QLabel(f"{arac['marka']} {arac['model']}\n{arac['plaka']}")
+            lbl_info.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            lbl_info.setAlignment(Qt.AlignCenter)
+            lbl_info.setWordWrap(True)
+            card_layout.addWidget(lbl_info)
+
+            lbl_price = QLabel(f"{arac['ucret']} TL / Gün")
+            lbl_price.setStyleSheet("color: #e67e22; font-weight: bold; font-size: 14px;")
+            lbl_price.setAlignment(Qt.AlignCenter)
+            card_layout.addWidget(lbl_price)
+
+            # Durum
+            lbl_status = QLabel(arac["durum"])
+            lbl_status.setAlignment(Qt.AlignCenter)
+            if arac["durum"] == "Müsait":
+                lbl_status.setStyleSheet("color: white; background-color: #27ae60; border-radius: 5px; padding: 2px;")
+            else:
+                lbl_status.setStyleSheet("color: white; background-color: #c0392b; border-radius: 5px; padding: 2px;")
+                if arac["kiralayan"]:
+                    lbl_status.setText(f"Kirada: {arac['kiralayan']}")
+            card_layout.addWidget(lbl_status)
+
+            # 3. Butonlar
+            btn_layout = QHBoxLayout()
+            
+            btn_action = QPushButton("Kirala" if arac["durum"] == "Müsait" else "İade Al")
+            btn_action.setStyleSheet("background-color: #3498db; color: white; padding: 5px;")
+            if arac["durum"] == "Müsait":
+                btn_action.clicked.connect(lambda checked, idx=i: self.switch_callback(2, vehicle_index=idx))
+            else:
+                btn_action.clicked.connect(lambda checked, idx=i: self.iade_et(idx))
+            
+            btn_edit = QPushButton("✏️")
+            btn_edit.setFixedWidth(30)
+            btn_edit.clicked.connect(lambda checked, idx=i: self.duzenle(idx))
+            
+            btn_delete = QPushButton("🗑️")
+            btn_delete.setFixedWidth(30)
+            btn_delete.setStyleSheet("background-color: #c0392b;")
+            btn_delete.clicked.connect(lambda checked, idx=i: self.sil(idx))
+
+            btn_layout.addWidget(btn_action)
+            btn_layout.addWidget(btn_edit)
+            btn_layout.addWidget(btn_delete)
+            card_layout.addLayout(btn_layout)
+
+            self.grid_layout.addWidget(card, row, col)
+
+            col += 1
+            if col >= max_col:
+                col = 0
+                row += 1
 
     def arac_ekle(self):
         try:
             p, m, md = self.ent_plaka.text(), self.ent_marka.text(), self.ent_model.text()
             u = float(self.ent_ucret.text())
             if not p or not m: raise ValueError
-            self.db.arac_ekle(p, m, md, u)
-            QMessageBox.information(self, "Başarılı", "Araç sisteme eklendi.")
-            self.tabloyu_guncelle()
+            
+            # Resim Kopyalama ve Kaydetme
+            final_path = "assets/default_car.png"
+            if self.secilen_resim_yolu:
+                if not os.path.exists("assets"): os.makedirs("assets")
+                dosya_adi = os.path.basename(self.secilen_resim_yolu)
+                final_path = f"assets/{dosya_adi}"
+                try:
+                    shutil.copy(self.secilen_resim_yolu, final_path)
+                except: pass
+            
+            self.db.arac_ekle(p, m, md, u, final_path)
+            QMessageBox.information(self, "Başarılı", "Araç resimli olarak eklendi.")
+            
             self.ent_plaka.clear(); self.ent_marka.clear(); self.ent_model.clear(); self.ent_ucret.clear()
+            self.img_preview.setText("Resim Yok")
+            self.img_preview.setPixmap(QPixmap())
+            self.secilen_resim_yolu = None
+            
+            self.kartlari_guncelle()
+            
         except ValueError:
-            QMessageBox.warning(self, "Hata", "Lütfen tüm alanları kontrol ediniz.")
+            QMessageBox.warning(self, "Hata", "Lütfen bilgileri kontrol ediniz.")
 
-    def duzenle(self):
-        selected = self.table.currentRow()
-        if selected == -1: return
-        real_index = self.current_rows_indices[selected]
-        arac = self.db.veriler["araclar"][real_index]
+    def duzenle(self, index):
+        arac = self.db.veriler["araclar"][index]
         dialog = EditDialog(self, arac)
         if dialog.exec_() == QDialog.Accepted:
             try:
                 data = dialog.get_data()
-                self.db.arac_guncelle(real_index, *data)
+                self.db.arac_guncelle(index, *data)
                 QMessageBox.information(self, "Başarılı", "Güncellendi")
-                self.tabloyu_guncelle()
+                self.kartlari_guncelle()
             except: pass
 
-    def kiralamaya_git(self):
-        selected = self.table.currentRow()
-        if selected == -1: return
-        real_index = self.current_rows_indices[selected]
-        arac = self.db.veriler["araclar"][real_index]
-        if arac["durum"] != "Müsait":
-            QMessageBox.warning(self, "Hata", "Araç zaten kirada!")
-            return
-        self.switch_callback(2, vehicle_index=real_index)
-
-    def iade_et(self):
-        selected = self.table.currentRow()
-        if selected == -1: return
-        real_index = self.current_rows_indices[selected]
-        self.db.iade_al(real_index)
+    def iade_et(self, index):
+        self.db.iade_al(index)
         QMessageBox.information(self, "Başarılı", "Araç iade alındı.")
-        self.tabloyu_guncelle()
+        self.kartlari_guncelle()
 
-    def sil(self):
-        selected = self.table.currentRow()
-        if selected == -1: return
+    def sil(self, index):
         if QMessageBox.question(self, "Onay", "Silmek istiyor musunuz?", QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
-            self.db.arac_sil(self.current_rows_indices[selected])
-            self.tabloyu_guncelle()
+            self.db.arac_sil(index)
+            self.kartlari_guncelle()
