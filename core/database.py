@@ -55,6 +55,8 @@ class AracYonetici:
         
         self.veriler["gecmis_islemler"].append({
             "plaka": arac["plaka"], 
+            "marka": arac["marka"],  
+            "model": arac["model"], 
             "tutar": toplam_tutar,
             "gun": gun_sayisi, 
             "tarih": datetime.now().strftime("%Y-%m-%d"), 

@@ -39,9 +39,15 @@ class ReportPage(QWidget):
         lbl_history.setFont(QFont("Segoe UI", 12, QFont.Bold))
         layout.addWidget(lbl_history)
 
+        # --- TABLO GÜNCELLEMESİ BURADA ---
         self.history_table = QTableWidget()
-        self.history_table.setColumnCount(5)
-        self.history_table.setHorizontalHeaderLabels(["Tarih", "Plaka", "Müşteri", "Süre (Gün)", "Tutar"])
+        
+        # Sütun sayısını 5'ten 7'ye çıkardık
+        self.history_table.setColumnCount(7) 
+        
+        # Yeni Başlıklar: Marka ve Model eklendi
+        self.history_table.setHorizontalHeaderLabels(["Tarih", "Plaka", "Marka", "Model", "Müşteri", "Süre (Gün)", "Tutar"])
+        
         self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.history_table.setAlternatingRowColors(True)
         self.history_table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -82,11 +88,16 @@ class ReportPage(QWidget):
         for islem in reversed(gecmis):
             row = self.history_table.rowCount()
             self.history_table.insertRow(row)
+            
+            # --- VERİLERİ YERLEŞTİRME (Güvenli Yöntem) ---
+            # Eski kayıtlarda marka/model olmadığı için .get(..., "-") kullanıyoruz ki hata vermesin
             self.history_table.setItem(row, 0, QTableWidgetItem(islem.get("tarih", "-")))
             self.history_table.setItem(row, 1, QTableWidgetItem(islem.get("plaka", "-")))
-            self.history_table.setItem(row, 2, QTableWidgetItem(islem.get("musteri", "-")))
+            self.history_table.setItem(row, 2, QTableWidgetItem(islem.get("marka", "-"))) # Yeni
+            self.history_table.setItem(row, 3, QTableWidgetItem(islem.get("model", "-"))) # Yeni
+            self.history_table.setItem(row, 4, QTableWidgetItem(islem.get("musteri", "-")))
             
             gun_val = islem.get("gun", "-") 
-            self.history_table.setItem(row, 3, QTableWidgetItem(str(gun_val)))
+            self.history_table.setItem(row, 5, QTableWidgetItem(str(gun_val)))
             
-            self.history_table.setItem(row, 4, QTableWidgetItem(f"{islem.get('tutar', 0)} TL"))
+            self.history_table.setItem(row, 6, QTableWidgetItem(f"{islem.get('tutar', 0)} TL"))

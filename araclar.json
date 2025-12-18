@@ -6,7 +6,7 @@
             "model": "Qashqai",
             "ucret": 2000.0,
             "durum": "Kirada",
-            "kiralayan": "ceren şengül",
+            "kiralayan": "Ceren Şengül",
             "baslangic": "2025-12-15",
             "bitis": "2025-12-16"
         },
@@ -26,7 +26,7 @@
             "model": "XC40",
             "ucret": 2500.0,
             "durum": "Kirada",
-            "kiralayan": "ceren",
+            "kiralayan": "Hilal Kılıç",
             "baslangic": "2025-12-15",
             "bitis": "2025-12-16"
         },
@@ -56,7 +56,7 @@
             "model": "Focus",
             "ucret": 1600.0,
             "durum": "Kirada",
-            "kiralayan": "zafer yetiş",
+            "kiralayan": "Zafer Yetiş",
             "baslangic": "2025-12-15",
             "bitis": "2025-12-18"
         }
@@ -68,42 +68,54 @@
             "tutar": 2000.0,
             "tarih": "2025-12-15",
             "gun": "1",
-            "musteri": "soner yarıkabak"
+            "musteri": "Soner Yarıkabak",
+            "model": "Golf",
+            "marka": "Wolksvagen"
         },
         {
             "plaka": "11AGB48",
             "tutar": 3000.0,
             "tarih": "2025-12-15",
             "gun": "1",
-            "musteri": "Ajdar Gülüzülmez"
+            "musteri": "Ajdar Gülüzülmez",
+            "model" : "Octavia",
+            "marka": "Skoda"
         },
         {
             "plaka": "34ABC123",
             "tutar": 1500.0,
             "tarih": "2025-12-15",
             "gun": "1",
-            "musteri": "Cahit Sancar"
+            "musteri": "Cahit Sancar",
+            "model" : "Egea",
+            "marka": "Fiat"
         },
         {
             "plaka": "70AB153",
             "tutar": 4800.0,
             "gun": 3,
             "tarih": "2025-12-15",
-            "musteri": "zafer yetiş"
+            "musteri": "Zafer Yetiş",
+            "model": "Focus",
+            "marka": "Ford"
         },
         {
             "plaka": "41XYZ251",
             "tutar": 2500.0,
             "gun": 1,
             "tarih": "2025-12-15",
-            "musteri": "ceren"
+            "musteri": "Hilal Kılıç",
+            "model": "XC40",
+            "marka": "Volvo"
         },
         {
             "plaka": "34BGA463",
             "tutar": 2000.0,
             "gun": 1,
             "tarih": "2025-12-15",
-            "musteri": "ceren şengül"
+            "musteri": "Ceren Şengül",
+            "model": "Qashqai",
+            "marka": "Nissan"
         }
     ]
 }
