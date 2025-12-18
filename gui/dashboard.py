@@ -3,9 +3,9 @@ import os
 import shutil
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
                              QLabel, QLineEdit, QPushButton, QComboBox, QGroupBox, QDialog,
-                             QScrollArea, QGridLayout, QFrame, QFileDialog, QMessageBox)
-from PyQt5.QtGui import QFont, QPixmap, QColor
-from PyQt5.QtCore import Qt
+                             QScrollArea, QGridLayout, QFrame, QFileDialog, QMessageBox, QStyle)
+from PyQt5.QtGui import QFont, QPixmap, QColor , QIcon
+from PyQt5.QtCore import Qt, QSize
 
 # --- DÜZENLEME PENCERESİ CLASS ---
 class EditDialog(QDialog):
@@ -242,25 +242,43 @@ class DashboardPage(QWidget):
             card_layout.addWidget(lbl_status)
 
             # 3. Butonlar
+# gui/dashboard.py -> kartlari_guncelle() metodu içinde
+
+            # 3. Butonlar
             btn_layout = QHBoxLayout()
             
             btn_action = QPushButton("Kirala" if arac["durum"] == "Müsait" else "İade Al")
-            btn_action.setStyleSheet("background-color: #3498db; color: white; padding: 5px;")
+            btn_action.setStyleSheet("background-color: #3498db; color: white; padding: 5px; font-weight: bold;")
+            btn_action.setFixedHeight(35) # Buton yüksekliğini sabitle
             if arac["durum"] == "Müsait":
                 btn_action.clicked.connect(lambda checked, idx=i: self.switch_callback(2, vehicle_index=idx))
             else:
                 btn_action.clicked.connect(lambda checked, idx=i: self.iade_et(idx))
             
-            btn_edit = QPushButton("✏️")
-            btn_edit.setFixedWidth(30)
+            # Düzenleme Butonu (Kalem İkonu)
+            btn_edit = QPushButton()
+            btn_edit.setFixedSize(35, 35)
+            # PyQt'nin standart kalem/detay ikonunu kullan
+            btn_edit.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
+            btn_edit.setIconSize(QSize(20, 20))
+            btn_edit.setToolTip("Araç Bilgilerini Düzenle") # Fare üzerine gelince açıklama
             btn_edit.clicked.connect(lambda checked, idx=i: self.duzenle(idx))
             
-            btn_delete = QPushButton("🗑️")
-            btn_delete.setFixedWidth(30)
-            btn_delete.setStyleSheet("background-color: #c0392b;")
+            # Silme Butonu (Çöp Kutusu İkonu)
+            btn_delete = QPushButton()
+            btn_delete.setFixedSize(35, 35)
+            # PyQt'nin standart çöp kutusu ikonunu kullan
+            btn_delete.setIcon(self.style().standardIcon(QStyle.SP_TrashIcon))
+            btn_delete.setIconSize(QSize(20, 20))
+            btn_delete.setStyleSheet("""
+                QPushButton { background-color: #c0392b; border: none; border-radius: 5px; }
+                QPushButton:hover { background-color: #e74c3c; }
+            """)
+            btn_delete.setToolTip("Aracı Sil") # Fare üzerine gelince açıklama
             btn_delete.clicked.connect(lambda checked, idx=i: self.sil(idx))
 
             btn_layout.addWidget(btn_action)
+            btn_layout.addSpacing(10) # Butonlar arasına boşluk
             btn_layout.addWidget(btn_edit)
             btn_layout.addWidget(btn_delete)
             card_layout.addLayout(btn_layout)
