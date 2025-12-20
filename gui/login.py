@@ -1,3 +1,4 @@
+import os  # <-- Dosya yolunu bulmak için gerekli
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QLineEdit, QPushButton, QFrame, QGraphicsDropShadowEffect, QMessageBox)
 from PyQt5.QtCore import Qt
@@ -11,10 +12,18 @@ class LoginPage(QWidget):
 
         self.setObjectName("LoginPage")
 
-        self.setStyleSheet("""
-            #LoginPage {
-                border-image: url(assets/background.jpg) 0 0 0 0 stretch stretch;
-            }
+        base_dir = os.getcwd()
+        image_path = os.path.join(base_dir, "assets", "background.jpg")
+        image_path = image_path.replace("\\", "/")
+
+        self.setStyleSheet(f"""
+            #LoginPage {{
+                background-image: url({image_path}); 
+                background-position: center;
+                background-repeat: no-repeat;
+                /* Resmi pencereye sığdır ve orantılı uzat */
+                border-image: url({image_path}) 0 0 0 0 stretch stretch;
+            }}
         """)
         
         self.init_ui()
@@ -29,13 +38,13 @@ class LoginPage(QWidget):
         top_bar.addStretch()
         btn_theme = QPushButton("🌓 Tema")
         btn_theme.setFixedWidth(80)
-        # Butonun arkaplan resminden etkilenmemesi için kendi stilini veriyoruz
         btn_theme.setStyleSheet("background-color: #3498db; color: white; border: none; padding: 5px; border-radius: 5px;")
         btn_theme.clicked.connect(self.toggle_theme_callback)
         top_bar.addWidget(btn_theme)
         main_layout.addLayout(top_bar)
         main_layout.addStretch()
 
+        # --- ORTA KART (Login Kutusu) ---
         self.card = QFrame()
         self.card.setObjectName("LoginCard")
         self.card.setFixedSize(400, 350)
@@ -43,7 +52,7 @@ class LoginPage(QWidget):
         # Gölge Efekti (Kartın resimden ayrılması için)
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(30)
-        shadow.setColor(QColor(0, 0, 0, 80)) 
+        shadow.setColor(QColor(0, 0, 0, 80))
         shadow.setOffset(0, 10)
         self.card.setGraphicsEffect(shadow)
 
