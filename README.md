@@ -1,51 +1,47 @@
-# 🚗 Python Car Rental Management System (v2.4)
+# 🚗 Python Car Rental Management System (Gallery Edition)
 
-A robust, modular desktop application developed using **Python and PyQt5** for managing vehicle rentals, fleet inventory, and financial reporting. Designed with clean architecture principles to ensure maintainability and scalability.
+A high-end, modular desktop application built with **Python and PyQt5**. Version 3.0 introduces a modern **Card-Based Gallery UI**, replacing traditional tables with a dynamic, visual fleet management experience.
 
-## ✨ Key Features
+## ✨ New & Advanced Features
 
-### User Interface & Experience
-* **Modular Architecture:** Project code is professionally separated into `core`, `gui`, and `assets` directories (simulating an MVC pattern).
-* **Dynamic Theming:** Seamless one-click transition between **Dark Mode** and **Light Mode** across the entire application interface.
-* **Modern GUI:** Clean, contemporary design with custom Qt Style Sheets (QSS), providing a highly intuitive user experience.
-* **Efficient Search:** Instant filtering across the main fleet table by **License Plate, Make, Model, and Status**.
+### 🖼️ Dynamic Gallery Interface (New!)
+* **Card-Based UI:** Vehicles are now displayed as individual visual cards rather than simple text rows.
+* **Image Integration:** Each vehicle supports custom image uploads (`.png`, `.jpg`), stored locally in the `assets/` directory.
+* **Smart Grid Logic:** The interface uses a dynamic `QGridLayout` within a `QScrollArea`, automatically organizing vehicle cards based on window size.
+* **Custom Backgrounds:** The login terminal features a professional high-definition background rendered via `QPainter` for maximum compatibility.
 
-### Operations and Data Integrity
-* **Comprehensive CRUD:** Full functionality to **C**reate, **R**ead, **U**pdate (edit), and **D**elete vehicle inventory records.
-* **Rental Workflow:** Automated fee calculation and instantaneous status updates (`Available` ↔ `Rented`).
-* **Data Persistence:** Vehicle inventory and all transaction history are stored locally in a persistent **JSON** file (`araclar.json`).
+### 🛠️ Fleet & Data Management
+* **Interactive Controls:** Each vehicle card features integrated "Rent", "Edit", and "Delete" actions with intuitive icons.
+* **Modular Backend:** Powered by a decoupled `core/database.py` that handles JSON serialization and image path persistence.
+* **Instant Filtering:** Real-time search by Plate, Make, or Model, with status-based filtering (Available/Rented).
 
-## 📊 Detailed Financial and Fleet Analytics
+### 📊 Professional Analytics
+* **Enhanced History:** The transaction log now tracks **Make and Model** along with plate numbers for better auditing.
+* **Financial Overview:** Real-time calculation of total cumulative revenue.
+* **Utilization Pie Chart:** Visual representation of fleet occupancy using `matplotlib`.
 
-The dedicated analysis panel provides critical business intelligence:
+## 💻 Technical Architecture
 
-* **Revenue Tracking:** Displays the cumulative total revenue (`Toplam Gelir`).
-* **Fleet Utilization:** A **pie chart** visualization showing the exact percentage distribution of **Available vs. Rented** vehicles.
-* **Immutable Transaction History:** A detailed, chronological record of every past rental transaction, including the **Customer, Total Amount, and Rental Duration (Days)**. *(Ensures data integrity even after vehicles are removed from the fleet.)*
+This project is built using a **Code-First (Pure Python) approach**, eschewing Qt Designer to maintain full programmatic control over dynamic widget generation.
+
+* **GUI:** PyQt5 (Custom Widgets, QPainter, QSS)
+* **Data:** JSON (Persistent local storage)
+* **Plotting:** Matplotlib (Integrated into PyQt via FigureCanvas)
+* **Architecture:** Modular MVC-style separation (`core` for logic, `gui` for views).
 
 ## 🚀 Getting Started
 
-### Requirements 
-
-The project requires Python 3 and the following dependencies:
-
 ```bash
+# Install dependencies
 pip install PyQt5 PyQt5-stubs matplotlib
-```
-Starting the Application
-Follow these steps to clone and run the system:
 
-1. Clone the repository and navigate to the project root directory.
-2. Ensure your logo file (logo.png) is correctly placed inside the assets folder.
-3. Execute the application using the command below:
-```bash
+# Ensure assets are present
+# Place vehicle images (arac1.png, etc.) and background.jpg in /assets
+
+# Run the system
 python main.py
 ```
-## 🔑 Access Credentials
-
-The application uses a single administrator login with full privileges:
-
-| Field | Value |
-| :--- | :--- |
-| **Username** | `admin` |
-| **Password** | `1234` |
+Field	Value
+Username	admin
+Password	1234
+Developed as a professional semester project focusing on Dynamic UI Management and Object-Oriented Programming.
