@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QLineEdit, QPushButton, QFrame, QMessageBox, QGraphicsDropShadowEffect)
+                             QLineEdit, QPushButton, QFrame, QGraphicsDropShadowEffect, QMessageBox)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QColor
 
@@ -8,6 +8,15 @@ class LoginPage(QWidget):
         super().__init__()
         self.switch_callback = switch_callback
         self.toggle_theme_callback = toggle_theme_callback
+
+        self.setObjectName("LoginPage")
+
+        self.setStyleSheet("""
+            #LoginPage {
+                border-image: url(assets/background.jpg) 0 0 0 0 stretch stretch;
+            }
+        """)
+        
         self.init_ui()
 
     def init_ui(self):
@@ -15,10 +24,13 @@ class LoginPage(QWidget):
         main_layout.setAlignment(Qt.AlignCenter)
         self.setLayout(main_layout)
 
+        # Üst Bar (Tema Butonu)
         top_bar = QHBoxLayout()
         top_bar.addStretch()
         btn_theme = QPushButton("🌓 Tema")
         btn_theme.setFixedWidth(80)
+        # Butonun arkaplan resminden etkilenmemesi için kendi stilini veriyoruz
+        btn_theme.setStyleSheet("background-color: #3498db; color: white; border: none; padding: 5px; border-radius: 5px;")
         btn_theme.clicked.connect(self.toggle_theme_callback)
         top_bar.addWidget(btn_theme)
         main_layout.addLayout(top_bar)
@@ -28,10 +40,11 @@ class LoginPage(QWidget):
         self.card.setObjectName("LoginCard")
         self.card.setFixedSize(400, 350)
         
+        # Gölge Efekti (Kartın resimden ayrılması için)
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(20)
-        shadow.setColor(QColor(0, 0, 0, 50))
-        shadow.setOffset(0, 5)
+        shadow.setBlurRadius(30)
+        shadow.setColor(QColor(0, 0, 0, 80)) 
+        shadow.setOffset(0, 10)
         self.card.setGraphicsEffect(shadow)
 
         card_layout = QVBoxLayout()
@@ -47,17 +60,23 @@ class LoginPage(QWidget):
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Kullanıcı Adı")
         self.user_input.setText("admin") 
+        self.user_input.setStyleSheet("background-color: white; color: black; padding: 10px; border-radius: 5px; border: 1px solid #ccc;")
         
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Şifre")
         self.pass_input.setEchoMode(QLineEdit.Password)
+        self.pass_input.setStyleSheet("background-color: white; color: black; padding: 10px; border-radius: 5px; border: 1px solid #ccc;")
         
         card_layout.addWidget(self.user_input)
         card_layout.addWidget(self.pass_input)
 
         btn_login = QPushButton("Sisteme Giriş")
         btn_login.setCursor(Qt.PointingHandCursor)
-        btn_login.setMinimumHeight(40)
+        btn_login.setMinimumHeight(45)
+        btn_login.setStyleSheet("""
+            QPushButton { background-color: #27ae60; color: white; font-weight: bold; border-radius: 5px; }
+            QPushButton:hover { background-color: #2ecc71; }
+        """)
         btn_login.clicked.connect(self.check_login)
         card_layout.addWidget(btn_login)
         
