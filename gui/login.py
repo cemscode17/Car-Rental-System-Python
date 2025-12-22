@@ -2,7 +2,7 @@ import os
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QLineEdit, QPushButton, QFrame, QGraphicsDropShadowEffect, QMessageBox)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QColor, QPixmap, QPainter # <-- QPainter ve QPixmap eklendi
+from PyQt5.QtGui import QFont, QColor, QPixmap, QPainter
 
 class LoginPage(QWidget):
     def __init__(self, switch_callback, toggle_theme_callback):
@@ -11,24 +11,18 @@ class LoginPage(QWidget):
         self.toggle_theme_callback = toggle_theme_callback
         
         self.setObjectName("LoginPage")
-        # Dosya yolunu oluştur
         base_dir = os.getcwd()
-        image_path = os.path.join(base_dir, "assets", "background.jpg")      
-        # Resmi Python belleğine yükle
+        image_path = os.path.join(base_dir, "assets", "background.jpg")
         self.background_image = QPixmap(image_path)
-
+        
         if self.background_image.isNull():
-            print(f"HATA: Resim bulunamadı veya yüklenemedi: {image_path}")
-        else:
-            print("BAŞARILI: Arkaplan resmi yüklendi.")
+            print(f"HATA: Resim bulunamadı: {image_path}")
 
         self.init_ui()
 
-    # Bu fonksiyon pencere her yenilendiğinde çalışır ve resmi arkaplana çizer.
     def paintEvent(self, event):
         if not self.background_image.isNull():
             painter = QPainter(self)
-            # Resmi pencere boyutuna (self.rect) göre ölçekleyip çiz
             painter.drawPixmap(self.rect(), self.background_image)
 
     def init_ui(self):
@@ -40,7 +34,7 @@ class LoginPage(QWidget):
         top_bar.addStretch()
         btn_theme = QPushButton("🌓 Tema")
         btn_theme.setFixedWidth(80)
-        btn_theme.setStyleSheet("background-color: #3498db; color: white; border: none; padding: 5px; border-radius: 5px;")
+        btn_theme.setStyleSheet("background-color: #3498db; color: white; border: none; padding: 5px; border-radius: 5px; font-weight: bold;")
         btn_theme.clicked.connect(self.toggle_theme_callback)
         top_bar.addWidget(btn_theme)
         main_layout.addLayout(top_bar)
@@ -49,14 +43,6 @@ class LoginPage(QWidget):
         self.card = QFrame()
         self.card.setObjectName("LoginCard")
         self.card.setFixedSize(400, 350)
-        
-        # Login kutusunun arkaplanını hafif şeffaf beyaz yapıyoruz ki resim üzerinde okunsun
-        self.card.setStyleSheet("""
-            #LoginCard {
-                background-color: rgba(255, 255, 255, 240); 
-                border-radius: 15px;
-            }
-        """)
 
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(30)
@@ -69,21 +55,18 @@ class LoginPage(QWidget):
         card_layout.setSpacing(20)
         self.card.setLayout(card_layout)
 
-        title = QLabel("Yönetici Girişi")
-        title.setAlignment(Qt.AlignCenter)
-        title.setFont(QFont("Segoe UI", 20, QFont.Bold))
-        title.setStyleSheet("color: #2c3e50; background: transparent;") 
-        card_layout.addWidget(title)
+        self.lbl_title = QLabel("Yönetici Girişi")
+        self.lbl_title.setAlignment(Qt.AlignCenter)
+        self.lbl_title.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        card_layout.addWidget(self.lbl_title)
 
         self.user_input = QLineEdit()
         self.user_input.setPlaceholderText("Kullanıcı Adı")
         self.user_input.setText("admin") 
-        self.user_input.setStyleSheet("background-color: white; color: black; padding: 10px; border-radius: 5px; border: 1px solid #bdc3c7;")
         
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Şifre")
         self.pass_input.setEchoMode(QLineEdit.Password)
-        self.pass_input.setStyleSheet("background-color: white; color: black; padding: 10px; border-radius: 5px; border: 1px solid #bdc3c7;")
         
         card_layout.addWidget(self.user_input)
         card_layout.addWidget(self.pass_input)
@@ -97,14 +80,50 @@ class LoginPage(QWidget):
         """)
         btn_login.clicked.connect(self.check_login)
         card_layout.addWidget(btn_login)
-        
-        info = QLabel("Varsayılan: admin / 1234")
-        info.setAlignment(Qt.AlignCenter)
-        info.setStyleSheet("font-size: 10px; color: gray; background: transparent;")
-        card_layout.addWidget(info)
+
+        self.lbl_info = QLabel("Varsayılan: admin / 1234")
+        self.lbl_info.setAlignment(Qt.AlignCenter)
+        self.lbl_info.setStyleSheet("font-size: 10px; color: gray; background: transparent;")
+        card_layout.addWidget(self.lbl_info)
 
         main_layout.addWidget(self.card, alignment=Qt.AlignCenter)
         main_layout.addStretch()
+
+        self.set_theme_mode(False)
+
+    def set_theme_mode(self, is_dark):
+        if is_dark:
+            card_bg = "rgba(30, 30, 30, 240)" 
+            text_color = "white"
+            input_bg = "#2f3640"
+            input_text = "white"
+            input_border = "1px solid #57606f"
+            placeholder_color = "#a4b0be"
+        else:
+            card_bg = "rgba(255, 255, 255, 240)"
+            text_color = "#2c3e50"
+            input_bg = "white"
+            input_text = "black"
+            input_border = "1px solid #bdc3c7"
+            placeholder_color = "gray"
+
+        self.card.setStyleSheet(f"#LoginCard {{ background-color: {card_bg}; border-radius: 15px; }}")
+
+        self.lbl_title.setStyleSheet(f"color: {text_color}; background: transparent;")
+
+        input_style = f"""
+            QLineEdit {{ 
+                background-color: {input_bg}; 
+                color: {input_text}; 
+                padding: 10px; 
+                border-radius: 5px; 
+                border: {input_border};
+            }}
+        """
+        self.user_input.setStyleSheet(input_style)
+        self.pass_input.setStyleSheet(input_style)
+
+        self.lbl_info.setStyleSheet(f"font-size: 10px; color: {text_color}; background: transparent;")
 
     def check_login(self):
         u, p = self.user_input.text(), self.pass_input.text()

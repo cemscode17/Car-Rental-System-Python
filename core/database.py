@@ -1,4 +1,3 @@
-# core/database.py
 import json
 import os
 from datetime import datetime
@@ -21,12 +20,11 @@ class AracYonetici:
         with open(self.dosya_adi, 'w', encoding='utf-8') as f:
             json.dump(self.veriler, f, ensure_ascii=False, indent=4)
 
-    # GÜNCELLENDİ: resim_yolu parametresi eklendi
     def arac_ekle(self, plaka, marka, model, ucret, resim_yolu="assets/default_car.png"):
         yeni_arac = {
             "plaka": plaka, "marka": marka, "model": model,
             "ucret": float(ucret), "durum": "Müsait",
-            "resim": resim_yolu,  # Yeni alan
+            "resim": resim_yolu,  
             "kiralayan": "", "baslangic": "", "bitis": ""
         }
         self.veriler["araclar"].append(yeni_arac)

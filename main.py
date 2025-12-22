@@ -45,6 +45,7 @@ class MainWindow(QMainWindow):
         else:
             self.setStyleSheet(LIGHT_THEME)
         self.page_report.set_graph_theme(self.is_dark)
+        self.page_login.set_theme_mode(self.is_dark)
 
     def switch_page(self, index, vehicle_index=None):
         self.stack.setCurrentIndex(index)

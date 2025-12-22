@@ -1,4 +1,3 @@
-# gui/dashboard.py
 import os
 import shutil
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout, 
@@ -7,7 +6,6 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
 from PyQt5.QtGui import QFont, QPixmap, QColor , QIcon
 from PyQt5.QtCore import Qt, QSize
 
-# --- DÜZENLEME PENCERESİ CLASS ---
 class EditDialog(QDialog):
     def __init__(self, parent, arac_bilgisi):
         super().__init__(parent)
@@ -34,14 +32,13 @@ class EditDialog(QDialog):
         return (self.ent_plaka.text(), self.ent_marka.text(), 
                 self.ent_model.text(), self.ent_ucret.text())
 
-# --- DASHBOARD PAGE CLASS (Resimli & Grid Yapılı) ---
 class DashboardPage(QWidget):
     def __init__(self, switch_callback, veri_yoneticisi, toggle_theme_callback):
         super().__init__()
         self.switch_callback = switch_callback
         self.db = veri_yoneticisi
         self.toggle_theme_callback = toggle_theme_callback
-        self.secilen_resim_yolu = None # Yeni araç eklerken tutulacak geçici yol
+        self.secilen_resim_yolu = None 
         self.init_ui()
 
     def init_ui(self):
@@ -49,7 +46,6 @@ class DashboardPage(QWidget):
         main.setContentsMargins(20, 20, 20, 20)
         self.setLayout(main)
 
-        # --- ÜST BAR ---
         top_bar = QHBoxLayout()
         self.lbl_welcome = QLabel("Yönetim Paneli - Galeri")
         self.lbl_welcome.setFont(QFont("Segoe UI", 14, QFont.Bold))
@@ -71,7 +67,7 @@ class DashboardPage(QWidget):
         top_bar.addWidget(btn_logout)
         main.addLayout(top_bar)
 
-        # --- FİLTRELEME ALANI ---
+
         filter_layout = QHBoxLayout()
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("🔍 Plaka, Marka veya Model Ara...")
@@ -87,13 +83,11 @@ class DashboardPage(QWidget):
 
         content = QHBoxLayout()
         
-        # --- SOL PANEL: ARAÇ EKLEME (Resim Seçmeli) ---
         self.left_panel = QGroupBox("Yeni Araç Ekle")
         self.left_panel.setFixedWidth(300) 
         left_layout = QVBoxLayout()
         self.left_panel.setLayout(left_layout)
         
-        # Resim Önizleme Alanı
         self.img_preview = QLabel("Resim Yok")
         self.img_preview.setAlignment(Qt.AlignCenter)
         self.img_preview.setFixedSize(260, 150)
@@ -125,7 +119,6 @@ class DashboardPage(QWidget):
         left_layout.addStretch()
         content.addWidget(self.left_panel)
 
-        # --- SAĞ PANEL: ARAÇ FİLOSU (SCROLL AREA & GRID) ---
         right_group = QGroupBox("Araç Filosu")
         right_layout = QVBoxLayout()
         right_group.setLayout(right_layout)
@@ -156,7 +149,6 @@ class DashboardPage(QWidget):
             self.img_preview.setText("") 
 
     def kartlari_guncelle(self):
-        # Grid temizleme
         for i in reversed(range(self.grid_layout.count())): 
             widget = self.grid_layout.itemAt(i).widget()
             if widget is not None: 
@@ -167,10 +159,9 @@ class DashboardPage(QWidget):
         
         row = 0
         col = 0
-        max_col = 3 # Yan yana 3 araç
+        max_col = 3 
 
         for i, arac in enumerate(self.db.veriler["araclar"]):
-            # Filtreleme
             if durum_filtre == "Müsait" and arac["durum"] != "Müsait": continue
             if durum_filtre == "Kirada" and arac["durum"] != "Kirada": continue
             if arama_metni and (arama_metni not in arac["plaka"].lower() and 
@@ -178,7 +169,7 @@ class DashboardPage(QWidget):
                                 arama_metni not in arac["model"].lower()):
                 continue
             
-            # --- KART TASARIMI ---
+
             card = QFrame()
             card.setObjectName("CarCard")
             card.setStyleSheet("""
@@ -197,14 +188,13 @@ class DashboardPage(QWidget):
             card_layout.setContentsMargins(10, 10, 10, 10)
             card.setLayout(card_layout)
 
-            # 1. Resim
+
             lbl_img = QLabel()
             lbl_img.setFixedSize(240, 160)
             lbl_img.setAlignment(Qt.AlignCenter)
             lbl_img.setStyleSheet("background-color: #ecf0f1; border-radius: 10px;")
             
             resim_path = arac.get("resim")
-            # Otomatik resim eşleştirme (Eski veriler için)
             if not resim_path and i < 6:
                 resim_path = f"assets/arac{i+1}.png"
             elif not resim_path:
@@ -218,7 +208,6 @@ class DashboardPage(QWidget):
             
             card_layout.addWidget(lbl_img)
 
-            # 2. Bilgiler
             lbl_info = QLabel(f"{arac['marka']} {arac['model']}\n{arac['plaka']}")
             lbl_info.setFont(QFont("Segoe UI", 12, QFont.Bold))
             lbl_info.setAlignment(Qt.AlignCenter)
@@ -230,7 +219,6 @@ class DashboardPage(QWidget):
             lbl_price.setAlignment(Qt.AlignCenter)
             card_layout.addWidget(lbl_price)
 
-            # Durum
             lbl_status = QLabel(arac["durum"])
             lbl_status.setAlignment(Qt.AlignCenter)
             if arac["durum"] == "Müsait":
@@ -241,44 +229,37 @@ class DashboardPage(QWidget):
                     lbl_status.setText(f"Kirada: {arac['kiralayan']}")
             card_layout.addWidget(lbl_status)
 
-            # 3. Butonlar
-# gui/dashboard.py -> kartlari_guncelle() metodu içinde
 
-            # 3. Butonlar
             btn_layout = QHBoxLayout()
             
             btn_action = QPushButton("Kirala" if arac["durum"] == "Müsait" else "İade Al")
             btn_action.setStyleSheet("background-color: #3498db; color: white; padding: 5px; font-weight: bold;")
-            btn_action.setFixedHeight(35) # Buton yüksekliğini sabitle
+            btn_action.setFixedHeight(35) 
             if arac["durum"] == "Müsait":
                 btn_action.clicked.connect(lambda checked, idx=i: self.switch_callback(2, vehicle_index=idx))
             else:
                 btn_action.clicked.connect(lambda checked, idx=i: self.iade_et(idx))
-            
-            # Düzenleme Butonu (Kalem İkonu)
+        
             btn_edit = QPushButton()
             btn_edit.setFixedSize(35, 35)
-            # PyQt'nin standart kalem/detay ikonunu kullan
             btn_edit.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
             btn_edit.setIconSize(QSize(20, 20))
-            btn_edit.setToolTip("Araç Bilgilerini Düzenle") # Fare üzerine gelince açıklama
+            btn_edit.setToolTip("Araç Bilgilerini Düzenle") 
             btn_edit.clicked.connect(lambda checked, idx=i: self.duzenle(idx))
-            
-            # Silme Butonu (Çöp Kutusu İkonu)
+
             btn_delete = QPushButton()
             btn_delete.setFixedSize(35, 35)
-            # PyQt'nin standart çöp kutusu ikonunu kullan
             btn_delete.setIcon(self.style().standardIcon(QStyle.SP_TrashIcon))
             btn_delete.setIconSize(QSize(20, 20))
             btn_delete.setStyleSheet("""
                 QPushButton { background-color: #c0392b; border: none; border-radius: 5px; }
                 QPushButton:hover { background-color: #e74c3c; }
             """)
-            btn_delete.setToolTip("Aracı Sil") # Fare üzerine gelince açıklama
+            btn_delete.setToolTip("Aracı Sil") 
             btn_delete.clicked.connect(lambda checked, idx=i: self.sil(idx))
 
             btn_layout.addWidget(btn_action)
-            btn_layout.addSpacing(10) # Butonlar arasına boşluk
+            btn_layout.addSpacing(10) 
             btn_layout.addWidget(btn_edit)
             btn_layout.addWidget(btn_delete)
             card_layout.addLayout(btn_layout)
@@ -295,8 +276,6 @@ class DashboardPage(QWidget):
             p, m, md = self.ent_plaka.text(), self.ent_marka.text(), self.ent_model.text()
             u = float(self.ent_ucret.text())
             if not p or not m: raise ValueError
-            
-            # Resim Kopyalama ve Kaydetme
             final_path = "assets/default_car.png"
             if self.secilen_resim_yolu:
                 if not os.path.exists("assets"): os.makedirs("assets")

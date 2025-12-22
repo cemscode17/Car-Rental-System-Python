@@ -39,13 +39,10 @@ class ReportPage(QWidget):
         lbl_history.setFont(QFont("Segoe UI", 12, QFont.Bold))
         layout.addWidget(lbl_history)
 
-        # --- TABLO GÜNCELLEMESİ BURADA ---
         self.history_table = QTableWidget()
-        
-        # Sütun sayısını 5'ten 7'ye çıkardık
+
         self.history_table.setColumnCount(7) 
-        
-        # Yeni Başlıklar: Marka ve Model eklendi
+
         self.history_table.setHorizontalHeaderLabels(["Tarih", "Plaka", "Marka", "Model", "Müşteri", "Süre (Gün)", "Tutar"])
         
         self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -88,13 +85,11 @@ class ReportPage(QWidget):
         for islem in reversed(gecmis):
             row = self.history_table.rowCount()
             self.history_table.insertRow(row)
-            
-            # --- VERİLERİ YERLEŞTİRME (Güvenli Yöntem) ---
-            # Eski kayıtlarda marka/model olmadığı için .get(..., "-") kullanıyoruz ki hata vermesin
+
             self.history_table.setItem(row, 0, QTableWidgetItem(islem.get("tarih", "-")))
             self.history_table.setItem(row, 1, QTableWidgetItem(islem.get("plaka", "-")))
-            self.history_table.setItem(row, 2, QTableWidgetItem(islem.get("marka", "-"))) # Yeni
-            self.history_table.setItem(row, 3, QTableWidgetItem(islem.get("model", "-"))) # Yeni
+            self.history_table.setItem(row, 2, QTableWidgetItem(islem.get("marka", "-"))) 
+            self.history_table.setItem(row, 3, QTableWidgetItem(islem.get("model", "-"))) 
             self.history_table.setItem(row, 4, QTableWidgetItem(islem.get("musteri", "-")))
             
             gun_val = islem.get("gun", "-") 
